@@ -1,0 +1,130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <title>
+        Your Publications
+    </title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="../src/bibtex_js.js" type="text/javascript" charset="utf-8"></script>
+    <bibtex src="https://cors.io/?http://www.research.ed.ac.uk/portal/en/organisations/design-informatics(035197e2-377f-4837-97f7-7e235a2bbb93)/publications.bibtex"></bibtex>
+
+    <script>
+        jQuery(function() {
+            jQuery("#Fontselector").on("change", function() {
+                var font = jQuery("#Fontselector option:selected").text();
+                console.log(font);
+
+                jQuery('.title.fonters').each(function() {
+                    jQuery(this).css("font-family", font);
+                });
+            });
+        });
+
+        function reset() {
+            jQuery("select").each(function() {
+                localStorage.setItem(jQuery(this).attr("id"), "");
+                jQuery(this).val("");
+            });
+            jQuery("#searchbar").val("");
+            jQuery("#searchbar").trigger('change');
+        }
+    </script>
+
+    <style>
+
+        bibtex {
+            display: none;
+        }
+
+        .searchbar {
+            margin-left: 0px;
+        }
+
+        #bibtex_errors {
+            margin-top: 10px;
+            color: red;
+        }
+
+        h1.header {
+            margin-left: 8px;
+        }
+
+        h1.YEAR {
+            font-size: 17px;
+            font-weight: bold;
+            display: inline;
+            margin-left: 8px;
+        }
+    </style>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="searchbar">
+            <div style="float:left; padding: 10px">
+                <select id="authorselectfirst" class="btn bibtex_search bibtex_author" style="border: 1px solid lightgrey;" extra="first" search="author">
+                    <option value="">Search First Author</option>
+                </select>
+            </div>
+            <div style="float:left; padding: 10px">
+                <select id="authorselect" class="btn bibtex_search bibtex_author" style="border: 1px solid lightgrey;" search="author">
+                    <option value="">Search Author</option>
+                </select>
+            </div>
+            <div style="float:left; padding: 10px; width:400px">
+                <input type="text" class="bibtex_search form-control" id="searchbar" placeholder="Search publications (e.g. journal 2015)">
+            </div>
+            <div style="float:left; padding: 10px">
+                <button type="button" class="btn btn-default" onclick="reset()">Reset</button>
+            </div>
+        </div>
+        <p></p>
+    </div>
+    <br></br>
+    <br></br>
+    <div class="bibtex_structure">
+        <div class="group year" extra="DESC number">
+            <div style="padding-bottom:10px;"></div>
+            <div class="sort journal" extra="DESC string">
+                <div class="templates"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="bibtex_display">
+      <pre>
+        <div class="bibtex_template" style="display: none;">
+            <ul>
+                <li>
+                    <span class="if last==Wolters">
+                        <a class="bibtexVar" href="https://www.research.ed.ac.uk/portal/en/publications/+PURESLUG+.html" extra="PURESLUG">
+                            <span style="text-decoration: underline;" class="title"></span>,
+                        </a>
+                    </span>
+                    <p class="if author">
+                        <span class="author"><span class="von"></span> <span class="last"></span><span class="junior">, </span><span class="first_initial">, </span></span>
+                        <span class="if journal"><em><span class="journal"></span></em>,</span>
+                        <span class="if publisher"><em><span class="publisher"></span></em>,</span>
+                        <span class="if booktitle">In <em><span class="booktitle"></span></em>,</span>
+                        <span class="if address"><span class="address"></span>,</span>
+                        <span class="if year"><span class="year"></span>.</span>
+                    </p>
+                </li>
+            </ul>
+        </div>
+      </pre>
+    </div>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+</body>
+
+</html>

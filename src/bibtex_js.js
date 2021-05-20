@@ -1,5 +1,5 @@
 ﻿
-/* 
+/*
  * Author = Philip Cooksey
  * Edited = September 2018
  * Website = https://github.com/pcooksey/bibtex-js
@@ -9,7 +9,7 @@
  *  no comment handling within strings
  *  no string concatenation
  *  no variable values yet
- 
+
  * Grammar implemented here:
  *  bibtex -> (string | preamble | comment | entry)*;
  *  string -> '@STRING' '{' key_equals_value '}';
@@ -46,6 +46,7 @@ function BibtexParser() {
     this.currentKey = "";
     this.rawCurrentKey = "";
     this.currentEntry = "";
+    this.hyphenTitle = "";
 
 
     this.setInput = function(t) {
@@ -61,7 +62,7 @@ function BibtexParser() {
     }
 
     this.errorThrown = function(str) {
-        $("#bibtex_errors").html(str);
+        jQuery("#bibtex_errors").html(str);
     }
 
     this.isWhitespace = function(s) {
@@ -230,6 +231,9 @@ function BibtexParser() {
         this.entries[this.currentEntry]["BIBTEXTYPEKEY"] = directive;
         this.match(",");
         this.key_value_list();
+        var bibKey = this.entries[this.currentEntry]["BIBTEXKEY"];
+        var bibKeyUrl = [bibKey.slice(0,8),"-",bibKey.slice(8,12),"-",bibKey.slice(12,16),"-",bibKey.slice(16,20),"-",bibKey.slice(20)].join('');
+        this.entries[this.currentEntry]["PURESLUG"] = this.entries[this.currentEntry]["TITLE"].replace(/\s+/g, '-').replace(/[^a-zA-Z0-9-_]/g, '').toLowerCase()+"("+bibKeyUrl+")";
     }
 
     this.directive = function() {
@@ -464,15 +468,15 @@ function BibtexDisplay() {
                 // Split string by ',' keeping {words, and words} together
                 var name = this.getName(arrayString[i].split(/\,\s?(?![^\{]*\})/));
                 var author = format.clone();
-                var fullName = $.grep(name.slice(0, 4), Boolean).join(" ");
+                var fullName = jQuery.grep(name.slice(0, 4), Boolean).join(" ");
                 author.attr('class', fullName);
                 author.find("span:not(a)").each(function() {
-                    var index = Format[$(this).attr('class').toUpperCase()];
+                    var index = Format[jQuery(this).attr('class').toUpperCase()];
                     // Check if value is empty
                     if (name[index] != "") {
-                        $(this).html($(this).html() + name[index]);
+                        jQuery(this).html(jQuery(this).html() + name[index]);
                     } else {
-                        $(this).remove();
+                        jQuery(this).remove();
                     }
                 });
                 if (i == 0) {
@@ -512,7 +516,7 @@ function BibtexDisplay() {
         }
 
         // find template
-        var tpl = $(".bibtex_template").clone().removeClass('bibtex_template');
+        var tpl = jQuery(".bibtex_template").clone().removeClass('bibtex_template');
 
         // find all keys in the entry
         var keys = [];
@@ -539,7 +543,7 @@ function BibtexDisplay() {
             var keepIf = false;
             var classList = cond.attr('class').split(orRegExp);
             var self = this;
-            $.each(classList, function(index, cls) {
+            jQuery.each(classList, function(index, cls) {
                 var equation = cls.split(eqRegExp);
                 if (equation.length == 2) {
                     if (keys.indexOf(equation[0].toUpperCase()) > 0 &&
@@ -564,16 +568,16 @@ function BibtexDisplay() {
         } while (true);
 
         tpl.find('.bibtexVar').each(function() {
-            var key = $(this).attr("extra").toUpperCase();
+            var key = jQuery(this).attr("extra").toUpperCase();
             var regEx = new RegExp('\\+' + key + '\\+', "gi");
-            $.each(this.attributes, function(i, attrib) {
+            jQuery.each(this.attributes, function(i, attrib) {
                 var value = attrib.value;
                 value = value.replace(regEx, entry[key]);
                 attrib.value = value;
             });
         });
 
-        // fill in remaining fields 
+        // fill in remaining fields
         for (var index in keys) {
             var key = keys[index];
             var value = entry[key] || "";
@@ -600,8 +604,8 @@ function BibtexDisplay() {
 
             tpl.find("span:not(a)." + key.toLowerCase()).html(value);
             tpl.find("a." + key.toLowerCase()).each(function() {
-                if (!$(this).attr("href")) {
-                    $(this).attr("href", value);
+                if (!jQuery(this).attr("href")) {
+                    jQuery(this).attr("href", value);
                 }
             });
         }
@@ -669,6 +673,8 @@ function BibtexDisplay() {
 
         if (groupChild.length) {
             var group = groupChild.first();
+            console.log(group);
+            console.log(group.attr('class'));
             var groupName = group.attr('class').split(" ")[1].toUpperCase();
             var rule = group.attr('extra').split(" ")[0];
             var type = group.attr('extra').split(" ")[1];
@@ -678,8 +684,8 @@ function BibtexDisplay() {
 
             // Get all the unique values for the groups
             var values = [];
-            $.each(sortedArray, function(i, object) {
-                if (groupName in object && $.inArray(object[groupName], values) === -1) {
+            jQuery.each(sortedArray, function(i, object) {
+                if (groupName in object && jQuery.inArray(object[groupName], values) === -1) {
                     values.push(object[groupName]);
                     return;
                 }
@@ -687,10 +693,10 @@ function BibtexDisplay() {
             values.push(MissingGroup); //This is for checking none grouped publications
 
             //Get the bibtex topics html here.
-            var topics = $(".bibtex_topics");
+            var topics = jQuery(".bibtex_topics");
 
             // Iterate through the values and recurively call this function
-            globalStruct = $('<div></div>');
+            globalStruct = jQuery('<div></div>');
             for (val in values) {
                 //Starting to create the page
                 var newStruct = struct.clone();
@@ -705,7 +711,7 @@ function BibtexDisplay() {
                 }
 
                 //Divide the array into group with groupNameValue
-                splicedArray = $.grep(sortedArray, function(object, i) {
+                splicedArray = jQuery.grep(sortedArray, function(object, i) {
                     if (groupNameValue == MissingGroup) {
                         return (typeof object[groupName] === "undefined") ? true : false;
                     } else {
@@ -744,16 +750,16 @@ function BibtexDisplay() {
                 toRemove = [];
             // Get all the unique values for the sections
             var sectionbibtexkey = sectionsChild.first().attr('class').split(" ")[1].toUpperCase();
-            $('.section', '.sections').each(function(i, object) {
-                values.push($(this).attr('class').split(" ")[1].toUpperCase());
-                section.push($(this));
+            jQuery('.section', '.sections').each(function(i, object) {
+                values.push(jQuery(this).attr('class').split(" ")[1].toUpperCase());
+                section.push(jQuery(this));
             });
 
             //Get the bibtex topics html here.
-            var topics = $(".bibtex_topics");
+            var topics = jQuery(".bibtex_topics");
 
             // Iterate through the values and recurively call this function
-            globalStruct = $('<div></div>');
+            globalStruct = jQuery('<div></div>');
             //Starting to create the page
             var newStruct = struct.clone();
             for (val in values) {
@@ -761,7 +767,7 @@ function BibtexDisplay() {
                 var re = new RegExp(sectionNameValue);
 
                 //Divide the array into group with sectionNameValue
-                splicedArray = $.grep(entries, function(object, i) {
+                splicedArray = jQuery.grep(entries, function(object, i) {
                     return re.test(object[sectionbibtexkey]);
                 });
 
@@ -837,7 +843,7 @@ function BibtexDisplay() {
         // save old entries to remove them later
         var old = output.find("*");
 
-        var structure = $(".bibtex_structure").clone();
+        var structure = jQuery(".bibtex_structure").clone();
         // If structure exists we need to do more complicated sorting with entries
         if (structure.length) {
             // Create array for sorting
@@ -863,17 +869,17 @@ function BibtexDisplay() {
 }
 
 function bibtex_js_draw() {
-    $(".bibtex_template").hide();
-    if ($("#bibtex_input").length) {
-        (new BibtexDisplay()).displayBibtex($("#bibtex_input").val(), $("#bibtex_display"));
+    jQuery(".bibtex_template").hide();
+    if (jQuery("#bibtex_input").length) {
+        (new BibtexDisplay()).displayBibtex(jQuery("#bibtex_input").val(), jQuery("#bibtex_display"));
     } else {
         //Gets the BibTex files and adds them together
         var bibstring = "";
         var requests = [];
         // Create request for bibtex files
-        $('bibtex').each(function(index, value) {
-            var request = $.ajax({
-                    url: $(this).attr('src'),
+        jQuery('bibtex').each(function(index, value) {
+            var request = jQuery.ajax({
+                    url: jQuery(this).attr('src'),
                     dataType: "text"
                 })
                 .done((data) => bibstring += data)
@@ -882,25 +888,25 @@ function bibtex_js_draw() {
         });
 
         // Executed on completion of last outstanding ajax call
-        $.when.apply($, requests).then(function() {
+        jQuery.when.apply(jQuery, requests).then(function() {
             // Check if we have a bibtex_display id or classes
-            if ($("#bibtex_display").length) {
-                (new BibtexDisplay()).displayBibtex(bibstring, $("#bibtex_display"));
-            } else if ($(".bibtex_display").length) {
+            if (jQuery("#bibtex_display").length) {
+                (new BibtexDisplay()).displayBibtex(bibstring, jQuery("#bibtex_display"));
+            } else if (jQuery(".bibtex_display").length) {
                 // Loop through all bibtex_displays on the page
-                $(".bibtex_display").each(function(index) {
+                jQuery(".bibtex_display").each(function(index) {
                     // ($this) is the class node output for the bitex entries
-                    (new BibtexDisplay()).displayBibtex(bibstring, $(this));
+                    (new BibtexDisplay()).displayBibtex(bibstring, jQuery(this));
                 });
             }
             loadExtras();
             // Remove elements from html that are not needed to display
-            $(".bibtex_structure").remove();
+            jQuery(".bibtex_structure").remove();
         });
     }
 }
 
-/** 
+/**
 BibTex Searcher is used with input form
 */
 function BibTeXSearcher() {
@@ -931,7 +937,7 @@ function BibTeXSearcher() {
         if (word[0] != "@") {
             entry.find("span:not(.noread)").each(
                 function() {
-                    if ($(this).text().search(new RegExp(word, "i")) > -1 &&
+                    if (jQuery(this).text().search(new RegExp(word, "i")) > -1 &&
                         entry.is(":visible")) {
                         found = true;
                         return false; //Break out of loop
@@ -944,7 +950,7 @@ function BibTeXSearcher() {
             if (arrayStr.length < 2) {
                 entry.find("span:not(.noread)." + arrayStr[0]).each(
                     function() {
-                        if ($(this).text().search(new RegExp(strings[1], "i")) > -1 &&
+                        if (jQuery(this).text().search(new RegExp(strings[1], "i")) > -1 &&
                             entry.is(":visible")) {
                             found = true;
                             return false; //Break out of loop
@@ -955,7 +961,7 @@ function BibTeXSearcher() {
                     case "first":
                         entry.find("span:not(.noread)." + arrayStr[0]).each(
                             function() {
-                                arrayString = $(this).text().split(new RegExp(",[\\s]+and[\\s]+|,[\\s]+"));
+                                arrayString = jQuery(this).text().split(new RegExp(",[\\s]+and[\\s]+|,[\\s]+"));
                                 if (strings[1] == arrayString[0] && entry.is(":visible")) {
                                     found = true;
                                     return false; //Break out of loop
@@ -969,25 +975,25 @@ function BibTeXSearcher() {
     }
 
     this.unhideAll = function() {
-        $("div#bibtex_display, div.bibtex_display").children().each(
+        jQuery("div#bibtex_display, div.bibtex_display").children().each(
             function() {
-                $(this).show();
-                $(this).find(".bibtexentry").each(
+                jQuery(this).show();
+                jQuery(this).find(".bibtexentry").each(
                     function() {
-                        $(this).show();
+                        jQuery(this).show();
                     });
             });
     }
 
     this.hideEntry = function(word) {
         var funcCaller = this;
-        var container = $("div#bibtex_display, div.bibtex_display").children();
+        var container = jQuery("div#bibtex_display, div.bibtex_display").children();
         // No bibtex_structure search
         if (container.first().hasClass("bibtexentry")) {
             container.each(
                 function() {
-                    if (!funcCaller.checkEntry($(this), word)) {
-                        $(this).hide();
+                    if (!funcCaller.checkEntry(jQuery(this), word)) {
+                        jQuery(this).hide();
                     }
                 });
         } else {
@@ -995,17 +1001,17 @@ function BibTeXSearcher() {
             container.each(
                 function() {
                     var shouldHide = true;
-                    $(this).find(".bibtexentry:visible").each(
+                    jQuery(this).find(".bibtexentry:visible").each(
                         function() {
-                            if (!funcCaller.checkEntry($(this), word)) {
-                                $(this).hide();
+                            if (!funcCaller.checkEntry(jQuery(this), word)) {
+                                jQuery(this).hide();
                             } else {
                                 shouldHide = false;
                             }
                         });
                     // Hides outside div
                     if (shouldHide) {
-                        $(this).hide();
+                        jQuery(this).hide();
                     }
                 });
         }
@@ -1051,10 +1057,10 @@ function BibTeXSearcher() {
 
 function createWebPage(defaultTemplate) {
     // draw bibtex when loaded
-    $(document).ready(function() {
+    jQuery(document).ready(function() {
         // check for template, add default
-        if ($(".bibtex_template").length == 0) {
-            $("body").append(defaultTemplate);
+        if (jQuery(".bibtex_template").length == 0) {
+            jQuery("body").append(defaultTemplate);
         }
         bibtex_js_draw();
     });
@@ -1062,8 +1068,8 @@ function createWebPage(defaultTemplate) {
 
 function loadExtras() {
     BibTeXSearcherClass = new BibTeXSearcher();
-    $(".bibtex_author").each(function(i, obj) {
-        authorList($(this));
+    jQuery(".bibtex_author").each(function(i, obj) {
+        authorList(jQuery(this));
     });
 
     localStorage.removeItem("customerDatabase");
@@ -1073,21 +1079,21 @@ function loadExtras() {
     }
 
     //Resets selects when back button is used
-    $("select").each(function() {
-        if (localStorage.getItem($(this).attr("id"))) {
-            $(this).val(JSON.parse(localStorage.getItem($(this).attr("id"))));
+    jQuery("select").each(function() {
+        if (localStorage.getItem(jQuery(this).attr("id"))) {
+            jQuery(this).val(JSON.parse(localStorage.getItem(jQuery(this).attr("id"))));
         }
     });
 
-    $(".bibtex_search").each(function(i, obj) {
-        $(this).on('change', function(e) {
+    jQuery(".bibtex_search").each(function(i, obj) {
+        jQuery(this).on('change', function(e) {
             combineSearcher(BibTeXSearcherClass, true);
-            localStorage.setItem($(this).attr("id"), JSON.stringify($(this).val()));
+            localStorage.setItem(jQuery(this).attr("id"), JSON.stringify(jQuery(this).val()));
         });
-        $(this).keyup(function() {
+        jQuery(this).keyup(function() {
             combineSearcher(BibTeXSearcherClass);
         });
-        if ($(this).val() != "") {
+        if (jQuery(this).val() != "") {
             combineSearcher(BibTeXSearcherClass, true);
         }
     });
@@ -1097,24 +1103,24 @@ function loadExtras() {
 function combineSearcher(searcherClass, needToRestart) {
     needToRestart = typeof needToRestart !== 'undefined' ? needToRestart : false;
     var string = "";
-    $("select.bibtex_search").each(function(i, obj) {
+    jQuery("select.bibtex_search").each(function(i, obj) {
         var front = "";
         if (obj.hasAttribute("search"))
-            front = "@" + $(this).attr("search");
+            front = "@" + jQuery(this).attr("search");
         if (obj.hasAttribute("extra")) {
-            front += "[" + $(this).attr("extra") + "]=";
+            front += "[" + jQuery(this).attr("extra") + "]=";
         } else {
             if (front != "") {
                 front += "=";
             }
         }
-        if ($(this).val() != "") {
-            string += "%" + front + $(this).val();
+        if (jQuery(this).val() != "") {
+            string += "%" + front + jQuery(this).val();
         }
     });
-    $("input.bibtex_search").each(function(i, obj) {
-        if ($(this).val() != "") {
-            string += "%" + $(this).val().split(' ').join('%');
+    jQuery("input.bibtex_search").each(function(i, obj) {
+        if (jQuery(this).val() != "") {
+            string += "%" + jQuery(this).val().split(' ').join('%');
         }
     });
     searcherClass.searcher(string, needToRestart);
@@ -1122,8 +1128,15 @@ function combineSearcher(searcherClass, needToRestart) {
 
 function authorList(object) {
     var map = new Object();
-    $("span.author").each(function(i, obj) {
-        arrayString = $(this).text().split(new RegExp(",[\\s]+and[\\s]+|,[\\s]+"));
+    jQuery("span.author").each(function(i, obj) {
+        arrayString = jQuery(this).text().split(new RegExp(",[\\s]+and[\\s]+|,[\\s]+"));
+        var arrayStringNoInitials = [];
+        for (i = 0; i < arrayString.length; i++) {
+          if (!arrayString[i].includes(".")) {
+            arrayStringNoInitials.push(arrayString[i].replace(/\s/g,''));
+          }
+        }
+        arrayString = arrayStringNoInitials;
         if (object.attr("extra") == "first") {
             map[arrayString[0]] = 1;
         } else {
@@ -1150,8 +1163,8 @@ function authorList(object) {
         var key = tuples[i][0];
         var value = tuples[i][1];
         var array = key.split(" ");
-        var text = array.pop() + ", " + array.join(" ");
-        object.append($("<option></option>").attr("value", key).text(text));
+        var text = array.pop() + array.join("");
+        object.append(jQuery("<option></option>").attr("value", key).text(text));
     }
 }
 
@@ -1194,7 +1207,7 @@ if (!window.jQuery || !window.moment) {
     };
 
     // Start polling...
-    checkReady(function($) {
+    checkReady(function(jQuery) {
         createWebPage(defaultTemplate);
     });
 } else {
