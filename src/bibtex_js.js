@@ -1854,6 +1854,8 @@ var latex_to_unicode = {
     "\\Elzreapos": "\u201B",
     "\\textquotedblleft": "\u201C",
     "\\textquotedblright": "\u201D",
+    "\\textquoteleft": "\u2018",
+    "\\textquoteright": "\u2019",
     "\u201E": ",,",
     "\\textdagger": "\u2020",
     "\\textdaggerdbl": "\u2021",
